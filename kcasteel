@@ -1,0 +1,47 @@
+import pandas as pd
+import streamlit as st
+
+# Title of the web app
+st.title("Peterbilt SRT Search Tool")
+
+# File upload function
+uploaded_file = st.file_uploader("Upload your SRT file (CSV or Excel)", type=["csv", "xlsx"])
+
+if uploaded_file is not None:
+    # Read the uploaded file
+    if uploaded_file.name.endswith('.csv'):
+        srt_data = pd.read_csv(uploaded_file)
+    else:
+        srt_data = pd.read_excel(uploaded_file)
+    
+    # Show the first few rows of the SRT data
+    st.write("Here is a preview of your SRT data:")
+    st.write(srt_data.head())
+
+    # Input fields for search filters
+    repair_code = st.text_input("Search by Repair Code")
+    repair_desc = st.text_input("Search by Repair Description")
+    truck_model = st.text_input("Filter by Truck Model")
+    engine_type = st.text_input("Filter by Engine Type")
+    
+    # Filter the data based on input criteria
+    filtered_data = srt_data
+    
+    if repair_code:
+        filtered_data = filtered_data[filtered_data['Repair Code'].str.contains(repair_code, case=False)]
+    
+    if repair_desc:
+        filtered_data = filtered_data[filtered_data['Repair Description'].str.contains(repair_desc, case=False)]
+    
+    if truck_model:
+        filtered_data = filtered_data[filtered_data['Truck Model'].str.contains(truck_model, case=False)]
+    
+    if engine_type:
+        filtered_data = filtered_data[filtered_data['Engine Type'].str.contains(engine_type, case=False)]
+    
+    # Display the filtered results
+    st.write("Filtered SRT Data:")
+    st.write(filtered_data)
+    
+    # Option to download filtered data
+    st.download_button("Download Filtered Data", filtered_data.to_csv(), file_name="filtered_srt_data.csv")
